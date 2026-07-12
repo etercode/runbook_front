@@ -1,0 +1,18 @@
+[Unit]
+Description=Runbook frontend (SvelteKit adapter-node)
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/runbook_front
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=HOST=127.0.0.1
+ExecStart=/usr/bin/node /var/www/runbook_front/build
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
