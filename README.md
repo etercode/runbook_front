@@ -23,3 +23,8 @@ npm run dev
 ```
 
 Default admin (backend seed): `admin@runbook.local` / `runbook123`
+
+## Production (VPS)
+
+Push to `main` deploys via GitHub Actions. Paths, secrets, systemd, and the
+full setup story: **[`docs/deployment.md`](docs/deployment.md)**.
