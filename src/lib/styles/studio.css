@@ -1,0 +1,347 @@
+/*
+ * Studio — admin-specific styles
+ * Horizontal tab bar, data tables with hairline borders, large numeral stats.
+ */
+
+/* ---- Layout ---------------------------------------------------------- */
+.studio {
+	max-width: var(--measure-wide);
+	margin: 0 auto;
+}
+
+/* ---- Page header (title + action row) -------------------------------- */
+.studio-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 1rem;
+	margin-bottom: 1.75rem;
+}
+
+.studio-title {
+	font-family: var(--font-display);
+	font-size: 2rem;
+	margin: 0;
+	line-height: 1.15;
+}
+
+.studio-subtitle {
+	font-size: 0.88rem;
+	color: var(--muted);
+	margin: 0.15rem 0 0;
+}
+
+/* ---- Horizontal tab bar ---------------------------------------------- */
+.studio-tabs {
+	display: flex;
+	gap: 0;
+	border-bottom: 1px solid var(--line);
+	margin-bottom: 2rem;
+}
+
+.studio-tab {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.65rem 1.1rem;
+	font-size: 0.88rem;
+	font-weight: 600;
+	font-family: var(--font-ui);
+	color: var(--muted);
+	border: none;
+	border-bottom: 2px solid transparent;
+	background: none;
+	margin-bottom: -1px;
+	transition: color 0.15s, border-color 0.15s;
+	text-decoration: none;
+}
+
+.studio-tab:hover {
+	color: var(--ink);
+	text-decoration: none;
+}
+
+.studio-tab.active {
+	color: var(--accent);
+	border-bottom-color: var(--accent);
+}
+
+/* ---- Large numeral stats --------------------------------------------- */
+.studio-stats {
+	display: flex;
+	gap: 2.5rem;
+	flex-wrap: wrap;
+	margin-bottom: 2.5rem;
+}
+
+.studio-stat {
+	display: flex;
+	flex-direction: column;
+	gap: 0.15rem;
+}
+
+.studio-stat-value {
+	font-family: var(--font-display);
+	font-size: 2.8rem;
+	line-height: 1;
+	color: var(--ink-strong);
+	letter-spacing: -0.02em;
+}
+
+.studio-stat-label {
+	font-size: 0.78rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--muted);
+}
+
+/* ---- Data table with hairline borders -------------------------------- */
+.studio-table-wrap {
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+.studio-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.9rem;
+}
+
+.studio-table th {
+	text-align: left;
+	padding: 0.55rem 0.75rem;
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: var(--faint);
+	border-bottom: 1px solid var(--line);
+}
+
+.studio-table td {
+	padding: 0.7rem 0.75rem;
+	border-bottom: 1px solid var(--line);
+	vertical-align: middle;
+}
+
+.studio-table tbody tr:hover {
+	background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.studio-table .row-link {
+	cursor: pointer;
+}
+
+.studio-table .row-title {
+	font-weight: 600;
+	color: var(--ink);
+}
+
+.studio-table .row-title:hover {
+	color: var(--accent);
+}
+
+.studio-table .nowrap {
+	white-space: nowrap;
+}
+
+.studio-table .tags {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: 0.3rem;
+	align-items: center;
+}
+
+.studio-table .mini-tag {
+	font-size: 0.7rem;
+	color: var(--muted);
+	background: var(--surface-2);
+	padding: 0.12rem 0.45rem;
+	border-radius: var(--radius-sm);
+}
+
+/* ---- Actions column -------------------------------------------------- */
+.studio-actions {
+	display: flex;
+	gap: 0.4rem;
+	align-items: center;
+	justify-content: flex-end;
+}
+
+/* ---- User cell ------------------------------------------------------- */
+.studio-user-cell {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.6rem;
+}
+
+.studio-user-cell .muted {
+	margin-left: 0.3rem;
+	font-size: 0.82rem;
+}
+
+/* ---- Page bottom load-more ------------------------------------------- */
+.studio-more {
+	display: flex;
+	justify-content: center;
+	margin-top: 1.5rem;
+}
+
+/* ---- Quick links on dashboard ---------------------------------------- */
+.studio-quick {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+}
+
+.studio-quick-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 0.85rem 0;
+	border-bottom: 1px solid var(--line);
+	color: var(--ink);
+	font-weight: 600;
+	font-size: 0.92rem;
+}
+
+.studio-quick-item:first-child {
+	border-top: 1px solid var(--line);
+}
+
+.studio-quick-item:hover {
+	text-decoration: none;
+	color: var(--accent);
+}
+
+.studio-quick-item span {
+	font-weight: 400;
+	color: var(--muted);
+	font-size: 0.85rem;
+}
+
+/* ---- Category tree --------------------------------------------------- */
+.studio-cat-layout {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 20rem;
+	gap: 1.5rem;
+	align-items: start;
+}
+
+.studio-tree {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+}
+
+.studio-cat-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 0.7rem 0;
+	border-bottom: 1px solid var(--line);
+}
+
+.studio-cat-row:first-child {
+	border-top: 1px solid var(--line);
+}
+
+.studio-cat-row.editing {
+	background: var(--accent-soft);
+	margin: 0 -0.75rem;
+	padding-left: 0.75rem;
+	padding-right: 0.75rem;
+	border-radius: var(--radius-sm);
+}
+
+.studio-cat-info {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	min-width: 0;
+}
+
+.studio-subtree {
+	list-style: none;
+	margin: 0 0 0 1.25rem;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+}
+
+.studio-sub-mark {
+	color: var(--faint);
+}
+
+.studio-form-title {
+	display: block;
+	font-family: var(--font-display);
+	font-size: 1.15rem;
+	margin-bottom: 0.8rem;
+}
+
+.studio-form-actions {
+	display: flex;
+	gap: 0.5rem;
+}
+
+/* ---- Back link ------------------------------------------------------- */
+.studio-back {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	font-size: 0.82rem;
+	color: var(--muted);
+	font-weight: 600;
+}
+
+.studio-back:hover {
+	color: var(--accent);
+}
+
+/* ---- Edit page header ------------------------------------------------ */
+.studio-edit-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	margin: 0.5rem 0 1rem;
+}
+
+.studio-edit-title {
+	font-family: var(--font-display);
+	font-size: 1.4rem;
+	margin: 0;
+}
+
+.studio-edit-actions {
+	display: flex;
+	gap: 0.5rem;
+}
+
+/* ---- Responsive ------------------------------------------------------ */
+@media (max-width: 820px) {
+	.studio-cat-layout {
+		grid-template-columns: 1fr;
+	}
+
+	.studio-stats {
+		gap: 1.5rem;
+	}
+
+	.studio-stat-value {
+		font-size: 2.2rem;
+	}
+
+	.studio-tabs {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+}
