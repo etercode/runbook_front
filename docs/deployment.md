@@ -215,7 +215,8 @@ Then push `.github/workflows/deploy.yml` (and front `bin/deploy.sh` + systemd un
 | API logs | `docker compose --env-file .env.local -f compose.yaml -f compose.prod.yaml logs -f` |
 | Front logs | `journalctl -u runbook-front -f` |
 | Restart front | `systemctl restart runbook-front` |
-| DB backup | `cd /var/www/runbook && ./bin/backup-db.sh` |
+| DB backup (manual) | `cd /var/www/runbook && ./bin/backup-db.sh` |
+| DB backup (cron) | Daily **03:00** server time → `/var/www/runbook/backups/runbook-YYYYMMDD.dump` (keeps 14 days; log: `/var/log/runbook-backup.log`) |
 | Create admin | `docker compose --env-file .env.local -f compose.yaml -f compose.prod.yaml exec php php bin/console app:user:create EMAIL 'PASS' --name 'Admin' --admin` |
 | Re-run last Action | Actions tab → failed/success run → **Re-run jobs** |
 
