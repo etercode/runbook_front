@@ -17,6 +17,8 @@ export class ApiError extends Error {
 }
 
 const TIMEOUT_MS = 15000;
+/** AI ask-help can take a while (provider curl timeout is 120s). */
+const AI_TIMEOUT_MS = 120000;
 
 /** @param {Response} response */
 async function parseJson(response) {
@@ -33,8 +35,9 @@ async function parseJson(response) {
  * @param {string} path
  * @param {RequestInit} [options]
  * @param {boolean} [auth] attach the bearer token and retry once on 401
+ * @param {number} [timeoutMs]
  */
-async function request(path, options = {}, auth = false) {
+async function request(path, options = {}, auth = false, timeoutMs = TIMEOUT_MS) {
 	const headers = new Headers(options.headers);
 	const body = options.body;
 	if (!headers.has('Content-Type') && body && !(body instanceof FormData)) {
@@ -45,12 +48,12 @@ async function request(path, options = {}, auth = false) {
 		if (token) headers.set('Authorization', `Bearer ${token}`);
 	}
 
-	let response = await send(path, { ...options, headers });
+	let response = await send(path, { ...options, headers }, timeoutMs);
 
 	if (auth && response.status === 401 && (await tryRefresh())) {
 		const token = getAccessToken();
 		if (token) headers.set('Authorization', `Bearer ${token}`);
-		response = await send(path, { ...options, headers });
+		response = await send(path, { ...options, headers }, timeoutMs);
 	}
 
 	if (!response.ok) {
@@ -59,10 +62,10 @@ async function request(path, options = {}, auth = false) {
 	return parseJson(response);
 }
 
-/** @param {string} path @param {RequestInit} options */
-async function send(path, options) {
+/** @param {string} path @param {RequestInit} options @param {number} [timeoutMs] */
+async function send(path, options, timeoutMs = TIMEOUT_MS) {
 	const controller = new AbortController();
-	const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+	const timer = setTimeout(() => controller.abort(), timeoutMs);
 	try {
 		return await fetch(`${API_URL}${path}`, { ...options, signal: controller.signal });
 	} catch (e) {
@@ -238,6 +241,23 @@ export function listBookmarks() {
 	return request('/api/bookmarks', {}, true);
 }
 
+/** @param {{ status?: 'open' | 'done', limit?: number, offset?: number }} [params] */
+export function listTodos(params = {}) {
+	return request(`/api/todos${query(params)}`, {}, true);
+}
+/** @param {{ name: string, description?: string|null, status?: 'open' | 'done' }} data */
+export function createTodo(data) {
+	return request('/api/todos', { method: 'POST', body: JSON.stringify(data) }, true);
+}
+/** @param {number} id @param {{ name?: string, description?: string|null, status?: 'open' | 'done' }} data */
+export function updateTodo(id, data) {
+	return request(`/api/todos/${id}`, { method: 'PATCH', body: JSON.stringify(data) }, true);
+}
+/** @param {number} id */
+export function deleteTodo(id) {
+	return request(`/api/todos/${id}`, { method: 'DELETE' }, true);
+}
+
 // ---- Admin authoring --------------------------------------------------
 
 /** @param {{ limit?: number, offset?: number }} [params] */
@@ -285,6 +305,32 @@ export function adminLive() {
 /** @param {{ limit?: number, offset?: number, q?: string }} [params] */
 export function adminListComments(params = {}) {
 	return request(`/api/admin/comments${query(params)}`, {}, true);
+}
+export function adminListAiProviders() {
+	return request('/api/admin/ai-providers', {}, true);
+}
+/**
+ * @param {'gemini'|'deepseek'} name
+ * @param {{ model?: string, apiKey?: string|null, active?: boolean }} data
+ */
+export function adminUpdateAiProvider(name, data) {
+	return request(`/api/admin/ai-providers/${name}`, { method: 'PATCH', body: JSON.stringify(data) }, true);
+}
+export function adminGetAiSettings() {
+	return request('/api/admin/ai-settings', {}, true);
+}
+/** @param {{ askHelpSystemPrompt?: string|null }} data */
+export function adminUpdateAiSettings(data) {
+	return request('/api/admin/ai-settings', { method: 'PATCH', body: JSON.stringify(data) }, true);
+}
+/** @param {number} id @param {{ prompt: string }} data */
+export function adminAskTodoHelp(id, data) {
+	return request(
+		`/api/admin/todos/${id}/ask-help`,
+		{ method: 'POST', body: JSON.stringify(data) },
+		true,
+		AI_TIMEOUT_MS
+	);
 }
 /** @param {number} id @param {string} body */
 export function adminUpdateComment(id, body) {

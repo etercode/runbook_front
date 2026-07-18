@@ -31,7 +31,12 @@
 		{ href: '/admin/comments', label: 'Comments', match: (/** @type {string} */ p) => p.startsWith('/admin/comments') },
 		{ href: '/admin/users', label: 'People', match: (/** @type {string} */ p) => p.startsWith('/admin/users') },
 		{ href: '/admin/sessions', label: 'Sessions', match: (/** @type {string} */ p) => p.startsWith('/admin/sessions') },
-		{ href: '/admin/live', label: 'Live', match: (/** @type {string} */ p) => p === '/admin/live' }
+		{ href: '/admin/live', label: 'Live', match: (/** @type {string} */ p) => p === '/admin/live' },
+		{
+			href: '/admin/ai-providers',
+			label: 'AI providers',
+			match: (/** @type {string} */ p) => p.startsWith('/admin/ai-providers')
+		}
 	];
 </script>
 

@@ -72,5 +72,9 @@
 			Live
 			<span>Who is online and which page they are on.</span>
 		</a>
+		<a href="/admin/ai-providers" class="studio-quick-item">
+			AI providers
+			<span>Gemini / DeepSeek keys and active model for Ask help.</span>
+		</a>
 	</div>
 {/if}

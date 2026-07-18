@@ -25,6 +25,7 @@
 	let isAuth = $derived(path === '/login' || path === '/register');
 	let onTopics = $derived(path.startsWith('/categories') || path.startsWith('/category/'));
 	let onSaved = $derived(path.startsWith('/bookmarks'));
+	let onTodos = $derived(path.startsWith('/todos'));
 	let onStudio = $derived(path.startsWith('/admin'));
 
 	$effect(() => {
@@ -122,6 +123,7 @@
 				<a href="/categories" class:on={onTopics} onclick={() => (navOpen = false)}>Topics</a>
 				{#if auth.isAuthenticated}
 					<a href="/bookmarks" class:on={onSaved} onclick={() => (navOpen = false)}>Saved</a>
+					<a href="/todos" class:on={onTodos} onclick={() => (navOpen = false)}>Todos</a>
 				{/if}
 			</nav>
 

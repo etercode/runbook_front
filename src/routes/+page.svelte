@@ -87,8 +87,8 @@
 					{cat.name}
 				</a>
 			{/each}
-			<span class="topic-sep more-sep" aria-hidden="true">·</span>
-			<a class="topic-link more" href="/categories">Browse topics</a>
+			<span class="topic-sep browse-sep" aria-hidden="true">·</span>
+			<a class="topic-link browse" href="/categories">Browse topics</a>
 		</nav>
 	{/if}
 
@@ -117,7 +117,7 @@
 				</ul>
 			{/if}
 			{#if canLoadMore}
-				<div class="more">
+				<div class="load-more">
 					<button class="btn btn-ghost" onclick={loadMore} disabled={loadingMore}>
 						{loadingMore ? 'Loading…' : 'Earlier notes'}
 					</button>
@@ -176,8 +176,8 @@
 		border-bottom: 1px solid var(--line);
 	}
 
-	.more-sep,
-	.more {
+	.browse-sep,
+	.browse {
 		margin-left: 0.15rem;
 	}
 
@@ -187,7 +187,7 @@
 		padding: 0;
 	}
 
-	.more {
+	.load-more {
 		display: flex;
 		justify-content: center;
 		margin-top: 2rem;
