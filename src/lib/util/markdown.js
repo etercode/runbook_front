@@ -206,11 +206,12 @@ export function renderMarkdown(src) {
 				continue;
 			}
 
-			const heading = line.match(/^(#{1,3})\s+(.*)$/);
+			// Offset by +1 so post title stays the page h1; cap at h6.
+			const heading = line.match(/^(#{1,6})\s+(.*)$/);
 			if (heading) {
 				closeList();
 				closeQuote();
-				const level = heading[1].length + 1;
+				const level = Math.min(heading[1].length + 1, 6);
 				html.push(`<h${level}>${inline(heading[2])}</h${level}>`);
 				continue;
 			}
