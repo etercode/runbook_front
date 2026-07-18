@@ -6,6 +6,7 @@
 	import Avatar from '$lib/components/Avatar.svelte';
 	import Markdown from '$lib/components/Markdown.svelte';
 	import Comments from '$lib/components/Comments.svelte';
+	import GuideSteps from '$lib/components/GuideSteps.svelte';
 	import { timeAgo } from '$lib/util/format';
 
 	let post = $state(/** @type {any} */ (null));
@@ -14,6 +15,11 @@
 	let busy = $state(false);
 
 	let slug = $derived($page.params.slug);
+	/** Guides that include this post as a step (with their full step lists). */
+	let parentGuides = $derived(
+		(post?.partOf ?? []).filter((g) => Array.isArray(g.steps) && g.steps.length > 0)
+	);
+	let primaryGuide = $derived(parentGuides[0] ?? null);
 
 	$effect(() => {
 		loading = true;
@@ -72,7 +78,11 @@
 		<a href="/" class="btn btn-ghost btn-sm">Back to notes</a>
 	{:else if post}
 		<article class="anim-up">
-			<a class="back" href="/">← Notes</a>
+			{#if primaryGuide}
+				<a class="back" href="/post/{primaryGuide.slug}">← {primaryGuide.title}</a>
+			{:else}
+				<a class="back" href="/">← Notes</a>
+			{/if}
 
 			<header class="head">
 				{#if post.categories?.length || post.isGuide}
@@ -111,39 +121,33 @@
 				<span class="act-count muted">{post.commentCount} comment{post.commentCount === 1 ? '' : 's'}</span>
 			</div>
 
+			{#if parentGuides.length}
+				{#each parentGuides as guide (guide.id)}
+					<GuideSteps
+						steps={guide.steps}
+						{guide}
+						currentPostId={post.id}
+						showNotes={false}
+						heading="In this guide"
+					/>
+				{/each}
+			{/if}
+
 			{#if post.body}
 				<div class="body"><Markdown source={post.body} /></div>
 			{/if}
 
 			{#if post.steps?.length}
-				<section class="steps">
-					<h2 class="sec">Steps</h2>
-					<ol>
-						{#each post.steps as step (step.post.id)}
-							<li>
-								{#if step.note}
-									<div class="note"><Markdown source={step.note} /></div>
-								{/if}
-								<a class="step" href="/post/{step.post.slug}">
-									<span class="num">{String(step.position).padStart(2, '0')}</span>
-									<span class="step-copy">
-										<span class="step-title">{step.post.title}</span>
-										{#if step.post.summary}<span class="step-sum">{step.post.summary}</span>{/if}
-									</span>
-								</a>
-							</li>
-						{/each}
-					</ol>
-				</section>
-			{/if}
-
-			{#if post.partOf?.length}
-				<p class="part">
-					<span class="muted">Appears in</span>
-					{#each post.partOf as guide (guide.id)}
-						<a href="/post/{guide.slug}">{guide.title}</a>
-					{/each}
-				</p>
+				<GuideSteps steps={post.steps} />
+			{:else if parentGuides.length}
+				{#each parentGuides as guide (guide.id)}
+					<GuideSteps
+						steps={guide.steps}
+						currentPostId={post.id}
+						showList={false}
+						showPager={true}
+					/>
+				{/each}
 			{/if}
 
 			<section class="discussion">
@@ -283,101 +287,6 @@
 		width: 100%;
 	}
 
-	.sec {
-		font-family: var(--font-ui);
-		font-weight: 700;
-		font-size: 0.75rem;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		color: var(--faint);
-		margin: 0 0 1.15rem;
-	}
-
-	.steps {
-		margin-bottom: 2.75rem;
-		min-width: 0;
-	}
-
-	.steps ol {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		border-left: 1px solid var(--line);
-	}
-
-	.steps li {
-		padding: 0 0 1.35rem 0;
-	}
-
-	.note {
-		padding: 0 0 0.55rem 1.25rem;
-	}
-
-	.note :global(.prose) {
-		font-size: 1.05rem;
-		color: var(--muted);
-		font-style: italic;
-	}
-
-	.step {
-		display: grid;
-		grid-template-columns: 2.25rem minmax(0, 1fr);
-		gap: 0.75rem;
-		padding: 0.25rem 0 0.25rem 1.1rem;
-		color: inherit;
-		text-decoration: none;
-		margin-left: -1px;
-		border-left: 2px solid transparent;
-	}
-
-	.step:hover {
-		border-left-color: var(--mark);
-		text-decoration: none;
-		color: inherit;
-	}
-
-	.num {
-		font-family: var(--font-ui);
-		font-weight: 700;
-		font-size: 0.9rem;
-		color: var(--mark);
-		line-height: 1.35;
-		font-variant-numeric: tabular-nums;
-	}
-
-	.step-title {
-		display: block;
-		font-family: var(--font-read);
-		font-weight: 600;
-		font-size: 1.1rem;
-		color: var(--ink-strong);
-		overflow-wrap: break-word;
-	}
-
-	.step:hover .step-title {
-		color: var(--accent);
-	}
-
-	.step-sum {
-		display: block;
-		margin-top: 0.2rem;
-		font-size: 0.9rem;
-		color: var(--muted);
-		font-family: var(--font-read);
-	}
-
-	.part {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem 0.85rem;
-		font-size: 0.9rem;
-		margin: 0 0 2.75rem;
-	}
-
-	.part a {
-		font-weight: 600;
-	}
-
 	.discussion {
 		min-width: 0;
 		width: 100%;
@@ -401,16 +310,6 @@
 			margin-left: 0;
 			width: 100%;
 			order: 3;
-		}
-
-		.step {
-			grid-template-columns: 1.75rem minmax(0, 1fr);
-			padding-left: 0.85rem;
-			gap: 0.55rem;
-		}
-
-		.note {
-			padding-left: 0.85rem;
 		}
 	}
 </style>

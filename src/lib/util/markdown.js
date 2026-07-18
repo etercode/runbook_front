@@ -41,10 +41,32 @@ function fileVideoEmbed(url) {
 }
 
 /**
+ * Split a GFM table row into cells (leading/trailing pipes optional).
+ * @param {string} line
+ * @returns {string[]}
+ */
+function splitTableRow(line) {
+	let s = line.trim();
+	if (s.startsWith('|')) s = s.slice(1);
+	if (s.endsWith('|')) s = s.slice(0, -1);
+	return s.split('|').map((c) => c.trim());
+}
+
+/**
+ * GFM separator row: `| --- | :---: | ---: |`
+ * @param {string} line
+ */
+function isTableSeparator(line) {
+	const cells = splitTableRow(line);
+	return cells.length > 0 && cells.every((c) => /^:?-{3,}:?$/.test(c));
+}
+
+/**
  * A tiny, dependency-free Markdown renderer for post/step content. Input is
  * fully HTML-escaped first, so the output is safe to use with {@html}. Supports
  * headings, bold/italic, inline and fenced code (with syntax highlighting),
- * links, blockquotes, images, video embeds, and ordered/unordered lists.
+ * links, blockquotes, images, video embeds, ordered/unordered lists, task lists,
+ * horizontal rules, and GFM tables.
  *
  * @param {string | null | undefined} src
  * @returns {string} HTML
@@ -141,8 +163,8 @@ export function renderMarkdown(src) {
 			}
 		};
 
-		for (const raw of lines) {
-			const line = raw.trimEnd();
+		for (let i = 0; i < lines.length; i++) {
+			const line = lines[i].trimEnd();
 
 			const codeMatch = line.match(/^CODEBLOCK(\d+)END$/);
 			if (codeMatch) {
@@ -177,6 +199,13 @@ export function renderMarkdown(src) {
 				continue;
 			}
 
+			if (/^(-{3,}|\*{3,}|_{3,})\s*$/.test(line.trim())) {
+				closeList();
+				closeQuote();
+				html.push('<hr />');
+				continue;
+			}
+
 			const heading = line.match(/^(#{1,3})\s+(.*)$/);
 			if (heading) {
 				closeList();
@@ -186,17 +215,74 @@ export function renderMarkdown(src) {
 				continue;
 			}
 
-			const ul = line.match(/^\s*[-*]\s+(.*)$/);
-			const ol = line.match(/^\s*\d+\.\s+(.*)$/);
-			if (ul || ol) {
+			// GFM table: header row + separator, then body rows.
+			const next = i + 1 < lines.length ? lines[i + 1].trimEnd() : '';
+			if (line.includes('|') && isTableSeparator(next)) {
+				closeList();
 				closeQuote();
-				const type = ul ? 'ul' : 'ol';
+				const headers = splitTableRow(line);
+				const aligns = splitTableRow(next).map((c) => {
+					const left = c.startsWith(':');
+					const right = c.endsWith(':');
+					if (left && right) return 'center';
+					if (right) return 'right';
+					return 'left';
+				});
+				i += 2;
+				/** @type {string[][]} */
+				const rows = [];
+				while (i < lines.length) {
+					const rowLine = lines[i].trimEnd();
+					if (!rowLine.trim() || !rowLine.includes('|') || isTableSeparator(rowLine)) break;
+					rows.push(splitTableRow(rowLine));
+					i++;
+				}
+				i--; // outer for-loop will advance
+
+				const th = headers
+					.map((h, idx) => {
+						const a = aligns[idx] || 'left';
+						return `<th style="text-align:${a}">${inline(h)}</th>`;
+					})
+					.join('');
+				const trs = rows
+					.map((cells) => {
+						const tds = headers
+							.map((_, idx) => {
+								const a = aligns[idx] || 'left';
+								return `<td style="text-align:${a}">${inline(cells[idx] ?? '')}</td>`;
+							})
+							.join('');
+						return `<tr>${tds}</tr>`;
+					})
+					.join('');
+				html.push(
+					`<div class="md-table-wrap"><table><thead><tr>${th}</tr></thead><tbody>${trs}</tbody></table></div>`
+				);
+				continue;
+			}
+
+			const task = line.match(/^\s*[-*]\s+\[([ xX])\]\s+(.*)$/);
+			const ul = !task ? line.match(/^\s*[-*]\s+(.*)$/) : null;
+			const ol = line.match(/^\s*\d+\.\s+(.*)$/);
+			if (task || ul || ol) {
+				closeQuote();
+				const type = ol ? 'ol' : 'ul';
 				if (listType !== type) {
 					closeList();
 					html.push(`<${type}>`);
 					listType = type;
 				}
-				html.push(`<li>${inline(ul ? ul[1] : ol[1])}</li>`);
+				if (task) {
+					const checked = /x/i.test(task[1]);
+					html.push(
+						`<li class="task-item${checked ? ' is-checked' : ''}">` +
+							`<input type="checkbox" disabled${checked ? ' checked' : ''} /> ` +
+							`<span>${inline(task[2])}</span></li>`
+					);
+				} else {
+					html.push(`<li>${inline(ul ? ul[1] : ol[1])}</li>`);
+				}
 				continue;
 			}
 

@@ -743,6 +743,70 @@ button {
 	margin: 2.2rem 0;
 }
 
+.prose .md-table-wrap {
+	margin: 1.5rem 0;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+	max-width: 100%;
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+}
+
+.prose table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.95rem;
+	line-height: 1.45;
+}
+
+.prose th,
+.prose td {
+	padding: 0.65rem 0.85rem;
+	border-bottom: 1px solid var(--line-soft);
+	vertical-align: top;
+	text-align: left;
+}
+
+.prose th {
+	font-family: var(--font-ui);
+	font-size: 0.78rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--muted);
+	background: var(--code-head, var(--sheet));
+	white-space: nowrap;
+}
+
+.prose tbody tr:last-child td {
+	border-bottom: none;
+}
+
+.prose tbody tr:nth-child(even) td {
+	background: color-mix(in srgb, var(--code-bg, transparent) 55%, transparent);
+}
+
+.prose li.task-item {
+	list-style: none;
+	display: flex;
+	align-items: flex-start;
+	gap: 0.55rem;
+	margin-left: -1.35rem;
+	padding-left: 0;
+}
+
+.prose li.task-item input[type='checkbox'] {
+	margin: 0.45em 0 0;
+	accent-color: var(--accent);
+	flex-shrink: 0;
+}
+
+.prose li.task-item.is-checked > span {
+	color: var(--muted);
+	text-decoration: line-through;
+	text-decoration-thickness: 1px;
+}
+
 .prose .tok-com {
 	color: var(--tok-com);
 }

@@ -282,6 +282,10 @@ export function adminRevokeSession(id) {
 export function adminLive() {
 	return request('/api/admin/live', {}, true);
 }
+/** @param {{ limit?: number, offset?: number, q?: string }} [params] */
+export function adminListComments(params = {}) {
+	return request(`/api/admin/comments${query(params)}`, {}, true);
+}
 /** @param {number} id @param {string} body */
 export function adminUpdateComment(id, body) {
 	return request(`/api/admin/comments/${id}`, { method: 'PATCH', body: JSON.stringify({ body }) }, true);
