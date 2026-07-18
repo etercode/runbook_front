@@ -66,7 +66,7 @@ function isTableSeparator(line) {
  * fully HTML-escaped first, so the output is safe to use with {@html}. Supports
  * headings, bold/italic, inline and fenced code (with syntax highlighting),
  * links, blockquotes, images, video embeds, ordered/unordered lists, task lists,
- * horizontal rules, and GFM tables.
+ * horizontal rules, GFM tables, and HTML details/summary callouts.
  *
  * @param {string | null | undefined} src
  * @returns {string} HTML
@@ -118,6 +118,17 @@ export function renderMarkdown(src) {
 		}
 	);
 
+	/** @type {{ summary: string, body: string }[]} */
+	const detailBlocks = [];
+	text = text.replace(/<details>\s*<summary>([\s\S]*?)<\/summary>([\s\S]*?)<\/details>/gi, (_m, summary, body) => {
+		const i =
+			detailBlocks.push({
+				summary: String(summary).trim(),
+				body: String(body).replace(/^\n+|\n+$/g, '')
+			}) - 1;
+		return `\nDETAILBLOCK${i}END\n`;
+	});
+
 	const inline = (/** @type {string} */ line) => {
 		let out = esc(line);
 		out = out.replace(/`([^`]+)`/g, (_m, c) => `<code>${c}</code>`);
@@ -138,6 +149,19 @@ export function renderMarkdown(src) {
 		out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 		out = out.replace(/(^|[^*])\*([^*]+)\*/g, '$1<em>$2</em>');
 		return out;
+	};
+
+	/**
+	 * Allow a tiny set of HTML inside <summary>; convert to Markdown then escape via inline().
+	 * @param {string} raw
+	 */
+	const summaryInline = (raw) => {
+		const s = raw
+			.replace(/<\/?(strong|b)>/gi, '**')
+			.replace(/<\/?(em|i)>/gi, '*')
+			.replace(/<br\s*\/?>/gi, ' ')
+			.replace(/<[^>]+>/g, '');
+		return inline(s);
 	};
 
 	/**
@@ -190,6 +214,22 @@ export function renderMarkdown(src) {
 				html.push(
 					`<div class="md-align md-align-${block.align}">${renderLines(block.body)}</div>`
 				);
+				continue;
+			}
+
+			const detailMatch = line.match(/^DETAILBLOCK(\d+)END$/);
+			if (detailMatch) {
+				closeList();
+				closeQuote();
+				const block = detailBlocks[Number(detailMatch[1])];
+				if (block) {
+					html.push(
+						`<details class="md-details">` +
+							`<summary>${summaryInline(block.summary)}</summary>` +
+							`<div class="md-details-body">${renderLines(block.body)}</div>` +
+							`</details>`
+					);
+				}
 				continue;
 			}
 

@@ -817,6 +817,58 @@ button {
 	text-decoration-thickness: 1px;
 }
 
+.prose details.md-details {
+	margin: 1.15rem 0;
+	padding: 0.15rem 0.95rem 0.85rem;
+	border: 1px solid var(--line-soft);
+	border-radius: var(--radius);
+	background: color-mix(in srgb, var(--sheet) 88%, var(--page));
+}
+
+.prose details.md-details > summary {
+	cursor: pointer;
+	list-style: none;
+	padding: 0.7rem 0 0.55rem;
+	font-family: var(--font-ui);
+	font-weight: 650;
+	color: var(--ink-strong);
+	line-height: 1.35;
+}
+
+.prose details.md-details > summary::-webkit-details-marker {
+	display: none;
+}
+
+.prose details.md-details > summary::before {
+	content: '▸';
+	display: inline-block;
+	width: 1em;
+	margin-right: 0.35rem;
+	color: var(--accent);
+	transition: transform 0.15s ease;
+}
+
+.prose details.md-details[open] > summary::before {
+	transform: rotate(90deg);
+}
+
+.prose details.md-details > summary:hover {
+	color: var(--accent);
+}
+
+.prose .md-details-body {
+	padding: 0.15rem 0 0.25rem 1.35rem;
+	border-top: 1px solid var(--line-soft);
+}
+
+.prose .md-details-body > :first-child {
+	margin-top: 0.75rem;
+}
+
+.prose .md-details-body > :last-child {
+	margin-bottom: 0.25rem;
+}
+
 .prose .tok-com {
 	color: var(--tok-com);
 }
